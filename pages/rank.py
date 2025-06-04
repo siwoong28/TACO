@@ -1,43 +1,101 @@
 import customtkinter as ctk
+from PIL import Image, ImageTk
+import os
 
-# 테마 설정
-ctk.set_appearance_mode("light")
-ctk.set_default_color_theme("blue")  # yellow → blue 로 변경
+# 창 기본 설정
+window = ctk.CTk()
+window.title("랭킹 페이지")
+window.geometry("1920x1080")
+window.configure(fg_color="#FBE6A2")  # 배경 노랑
 
-class TacoApp(ctk.CTk):
-    def __init__(self):
-        super().__init__()
-        self.title("TACO 실시간 랭킹")
-        self.geometry("900x600")
-        self.configure(bg="#FFE082")  # 노란 배경
+# 현재 선택된 메뉴
+selected_menu = ctk.StringVar(value="JAVA")
 
-        self.create_ui()
 
-    def create_ui(self):
-        # 상단 바
-        top_frame = ctk.CTkFrame(self, height=60, fg_color="white", corner_radius=0)
-        top_frame.pack(fill="x", side="top")
+def switch_page(menu_name):
+    selected_menu.set(menu_name)
+    update_menu_styles()
+    print(f"🔁 '{menu_name}' 페이지로 전환")  # 실제 페이지 전환 로직은 여기 추가
 
-        logo_label = ctk.CTkLabel(top_frame, text="🐙 TACO", font=("Arial", 20, "bold"), text_color="black")
-        logo_label.pack(side="left", padx=20)
 
-        # 중앙 영역
-        center_frame = ctk.CTkFrame(self, fg_color="#FFE082")
-        center_frame.pack(pady=20)
+def update_menu_styles():
+    for btn, name in menu_buttons:
+        if selected_menu.get() == name:
+            btn.configure(text_color="#2962FF", font=("Arial", 16, "bold"))
+        else:
+            btn.configure(text_color="black", font=("Arial", 16))
 
-        dropdown = ctk.CTkOptionMenu(center_frame, values=["JAVA", "PYTHON", "HTML"])
-        dropdown.set("JAVA")
-        dropdown.pack()
 
-        label = ctk.CTkLabel(center_frame, text="실시간 랭킹", font=("Arial", 18, "bold"), text_color="black")
-        label.pack(pady=10)
+# 상단 바
+top_frame = ctk.CTkFrame(window, height=80, fg_color="white", corner_radius=0)
+top_frame.pack(fill="x", side="top")
 
-        # 랭킹 박스 예시 하나
-        for i in range(5):
-            box = ctk.CTkFrame(self, width=300, height=60, corner_radius=10)
-            box.pack(pady=5)
-            ctk.CTkLabel(box, text=f"{i+1}위 ● 평균타수 1,032", font=("Arial", 14)).pack(padx=10, pady=10)
+# 왼쪽: 로고 프레임
+logo_frame = ctk.CTkFrame(top_frame, fg_color="transparent")
+logo_frame.pack(side="left", padx=30, pady=20)
 
-if __name__ == "__main__":
-    app = TacoApp()
-    app.mainloop()
+# logo.png 이미지 로딩 (다른 폴더에 있을 경우)
+logo_path = os.path.join(os.path.dirname(__file__), "..", "assets", "logo.png")
+logo_path = os.path.abspath(logo_path)  # 절대경로로 변환
+logo_image = ctk.CTkImage(Image.open(logo_path), size=(60, 60))
+
+logo_label = ctk.CTkLabel(logo_frame, image=logo_image, text="")
+logo_label.pack(side="left", padx=5)
+
+# 로고 텍스트
+logo_text = ctk.CTkLabel(logo_frame, text="TACO", font=("Arial", 22, "bold"), text_color="black")
+logo_text.pack(side="left")
+
+# 밑줄 강조
+underline = ctk.CTkFrame(logo_frame, width=50, height=6, fg_color="#FFF59D", corner_radius=3)
+underline.place(relx=0.5, rely=1, anchor="s", x=12, y=8)
+
+# 가운데 메뉴 버튼
+menu_frame = ctk.CTkFrame(top_frame, fg_color="transparent")
+menu_frame.pack(side="left", padx=80)
+
+menus = ["JAVA", "PYTHON", "HTML"]
+menu_buttons = []
+
+for menu in menus:
+    btn = ctk.CTkButton(
+        menu_frame,
+        text=menu,
+        command=lambda m=menu: switch_page(m),
+        fg_color="transparent",
+        hover_color="#f1f1f1",
+        text_color="black",
+        font=("Arial", 16),
+        width=60,
+        height=30,
+    )
+    btn.pack(side="left", padx=20)
+    menu_buttons.append((btn, menu))
+
+update_menu_styles()  # 초기 스타일 적용
+
+# 오른쪽 아이콘
+user_icon = ctk.CTkLabel(top_frame, text="◡̈", font=("Arial", 26), text_color="black")
+user_icon.pack(side="right", padx=30)
+
+# 랭킹 제목 + 드롭다운
+title_frame = ctk.CTkFrame(window, fg_color="#FBE6A2")
+title_frame.pack(pady=30)
+
+dropdown = ctk.CTkOptionMenu(
+    title_frame,
+    values=menus,
+    fg_color="#ffffff",
+    text_color="black",
+    button_color="#ffffff",
+    button_hover_color="#f1f1f1",
+    width=120
+)
+dropdown.set("JAVA")
+dropdown.pack(side="left", padx=10)
+
+title_label = ctk.CTkLabel(title_frame, text="실시간 랭킹", font=("Arial", 20, "bold"), text_color="black")
+title_label.pack(side="left", padx=10)
+
+# 실행
+window.mainloop()
