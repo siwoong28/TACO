@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 import time
 
+
 class CodingTypingGame:
     def __init__(self):
         # 기본 테마 설정
@@ -502,21 +503,182 @@ class CodingTypingGame:
 
         self.completion_shown = True
 
+        # 새로운 결과 창 생성
         completion_window = ctk.CTkToplevel(self.root)
-        completion_window.title("완료!")
-        completion_window.geometry("300x200")
-        completion_window.configure(fg_color="#FBE6A2")
+        completion_window.title("타이핑 완료")
+        completion_window.geometry("450x650")
+        completion_window.configure(fg_color="white")
+        completion_window.resizable(False, False)
 
-        ctk.CTkLabel(completion_window, text="타이핑 완료!", font=("Arial", 20, "bold")).pack(pady=20)
-        ctk.CTkLabel(completion_window, text=f"시간: {self.elapsed_time}").pack(pady=5)
-        ctk.CTkLabel(completion_window, text=f"타수: {self.typing_speed}타/분").pack(pady=5)
-        ctk.CTkLabel(completion_window, text=f"정확도: {self.accuracy:.2f}%").pack(pady=5)
-        ctk.CTkLabel(completion_window, text=f"오답: {self.errors}개").pack(pady=5)
+        # 창을 화면 중앙에 위치시키기
+        completion_window.transient(self.root)
+        completion_window.grab_set()
 
-        ctk.CTkButton(completion_window, text="확인", command=completion_window.destroy).pack(pady=20)
+        # 메인 컨테이너
+        main_container = ctk.CTkScrollableFrame(completion_window, fg_color="white")
+        main_container.pack(fill="both", expand=True, padx=20, pady=20)
+
+        # 프로필 이미지 영역
+        profile_container = ctk.CTkFrame(main_container, fg_color="white")
+        profile_container.pack(pady=(0, 30))
+
+        # 프로필 이미지 (원형)
+        profile_frame = ctk.CTkFrame(
+            profile_container,
+            width=120,
+            height=120,
+            fg_color="#D3D3D3",
+            corner_radius=60
+        )
+        profile_frame.pack()
+        profile_frame.pack_propagate(False)
+
+        # 프로필 내부 아이콘 (간단한 사람 모양)
+        icon_frame = ctk.CTkFrame(
+            profile_frame,
+            width=60,
+            height=60,
+            fg_color="#A8A8A8",
+            corner_radius=30
+        )
+        icon_frame.place(relx=0.5, rely=0.3, anchor="center")
+
+        body_frame = ctk.CTkFrame(
+            profile_frame,
+            width=80,
+            height=40,
+            fg_color="#A8A8A8",
+            corner_radius=20
+        )
+        body_frame.place(relx=0.5, rely=0.75, anchor="center")
+
+        # 이름 라벨
+        name_label = ctk.CTkLabel(
+            main_container,
+            text="김미림",
+            font=("Arial", 20, "bold"),
+            text_color="black"
+        )
+        name_label.pack(pady=(15, 25))
+
+        # 통계 정보 컨테이너
+        stats_container = ctk.CTkFrame(main_container, fg_color="#F8F8F8", corner_radius=10)
+        stats_container.pack(fill="x", pady=(0, 25), padx=10)
+
+        # 통계 항목들
+        stats_data = [
+            ("진행시간", self.elapsed_time),
+            ("타수(타/분)", str(self.typing_speed)),
+            ("정확도(%)", f"{self.accuracy:.2f}")
+        ]
+
+        for i, (label, value) in enumerate(stats_data):
+            # 각 통계 행
+            stat_row = ctk.CTkFrame(stats_container, fg_color="transparent")
+            stat_row.pack(fill="x", pady=10, padx=15)
+
+            # 라벨
+            stat_label = ctk.CTkLabel(
+                stat_row,
+                text=label,
+                font=("Arial", 14),
+                text_color="black"
+            )
+            stat_label.pack(side="left")
+
+            # 값
+            stat_value = ctk.CTkLabel(
+                stat_row,
+                text=value,
+                font=("Arial", 14, "bold"),
+                text_color="black"
+            )
+            stat_value.pack(side="right")
+
+        # 진행도 바 컨테이너
+        progress_container = ctk.CTkFrame(main_container, fg_color="white")
+        progress_container.pack(fill="x", pady=(0, 15))
+
+        # 진행도 바 (완료 상태이므로 100%)
+        result_progress = ctk.CTkProgressBar(
+            progress_container,
+            width=300,
+            height=12,
+            progress_color="#FF6B6B"
+        )
+        result_progress.pack(pady=10)
+        result_progress.set(1.0)  # 100% 완료
+
+        # 오답 표시
+        error_label = ctk.CTkLabel(
+            main_container,
+            text=f"오답 {self.errors}",
+            font=("Arial", 12),
+            text_color="red"
+        )
+        error_label.pack(pady=(5, 25))
+
+        # 버튼 컨테이너 - 수정된 부분
+        button_container = ctk.CTkFrame(main_container, fg_color="white", height=80)
+        button_container.pack(fill="x", side="bottom")
+        button_container.pack_propagate(False)
+
+        # 버튼들을 담을 내부 프레임
+        button_inner_frame = ctk.CTkFrame(button_container, fg_color="white")
+        button_inner_frame.pack(expand=True, fill="both", padx=20, pady=15)
+
+        # 그만하기 버튼
+        quit_btn = ctk.CTkButton(
+            button_inner_frame,
+            text="그만하기",
+            width=120,
+            height=45,
+            fg_color="#D3D3D3",
+            text_color="black",
+            hover_color="#C0C0C0",
+            corner_radius=22,
+            font=("Arial", 13, "bold"),
+            command=completion_window.destroy
+        )
+        quit_btn.pack(side="left", fill="x", expand=True, padx=(0, 10))
+
+        # 계속하기 버튼
+        continue_btn = ctk.CTkButton(
+            button_inner_frame,
+            text="계속하기",
+            width=120,
+            height=45,
+            fg_color="black",
+            text_color="white",
+            hover_color="#333333",
+            corner_radius=22,
+            font=("Arial", 13, "bold"),
+            command=lambda: [completion_window.destroy(), self.restart_game()]
+        )
+        continue_btn.pack(side="right", fill="x", expand=True, padx=(10, 0))
+
+    def restart_game(self):
+        """게임을 다시 시작하는 함수"""
+        self.current_stage = 0
+        self.current_position = 0
+        self.typed_text = ""
+        self.start_time = None
+        self.errors = 0
+        self.total_chars = 0
+        self.completed_inputs = []
+        self.typing_speed = 0
+        self.accuracy = 100.0
+        self.elapsed_time = "0:00"
+        self.game_completed = False
+        self.completion_shown = False
+
+        # UI 초기화
+        self.update_display()
+        self.start_timer()
 
     def run(self):
         self.root.mainloop()
+
 
 if __name__ == "__main__":
     game = CodingTypingGame()
