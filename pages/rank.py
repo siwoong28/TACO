@@ -1,6 +1,8 @@
 import customtkinter as ctk
 from PIL import Image, ImageTk
 import os
+import subprocess
+import sys
 
 # 창 기본 설정
 window = ctk.CTk()
@@ -11,12 +13,23 @@ window.configure(fg_color="#FBE6A2")  # 배경 노랑
 # 현재 선택된 메뉴
 selected_menu = ctk.StringVar(value="JAVA")
 
-
 def switch_page(menu_name):
     selected_menu.set(menu_name)
     update_menu_styles()
-    print(f"🔁 '{menu_name}' 페이지로 전환")  # 실제 페이지 전환 로직은 여기 추가
+    print(f"🔁 '{menu_name}' 페이지로 전환")
 
+    # level.py 절대 경로로 찾기
+    script_path = os.path.join(os.path.dirname(__file__), "level.py")
+    script_path = os.path.abspath(script_path)
+    script_dir = os.path.dirname(script_path)
+
+    # subprocess 실행 시 작업 디렉토리 설정
+    subprocess.Popen(
+        [sys.executable, script_path, menu_name],
+        cwd=script_dir  # ✅ 핵심: level.py의 디렉토리를 기준으로 작업 디렉토리 설정
+    )
+
+    window.destroy()
 
 def update_menu_styles():
     for btn, name in menu_buttons:
@@ -24,7 +37,6 @@ def update_menu_styles():
             btn.configure(text_color="#2962FF", font=("Arial", 16, "bold"))
         else:
             btn.configure(text_color="black", font=("Arial", 16))
-
 
 # 상단 바
 top_frame = ctk.CTkFrame(window, height=80, fg_color="white", corner_radius=0)
@@ -34,9 +46,9 @@ top_frame.pack(fill="x", side="top")
 logo_frame = ctk.CTkFrame(top_frame, fg_color="transparent")
 logo_frame.pack(side="left", padx=30, pady=20)
 
-# logo.png 이미지 로딩 (다른 폴더에 있을 경우)
-logo_path = os.path.join(os.path.dirname(__file__), "..", "assets", "logo.png")
-logo_path = os.path.abspath(logo_path)  # 절대경로로 변환
+# logo.png 이미지 로딩
+logo_path = os.path.join(os.path.dirname(__file__), "..","assets", "logo.png")
+logo_path = os.path.abspath(logo_path)
 logo_image = ctk.CTkImage(Image.open(logo_path), size=(60, 60))
 
 logo_label = ctk.CTkLabel(logo_frame, image=logo_image, text="")
@@ -72,7 +84,7 @@ for menu in menus:
     btn.pack(side="left", padx=20)
     menu_buttons.append((btn, menu))
 
-update_menu_styles()  # 초기 스타일 적용
+update_menu_styles()
 
 # 오른쪽 아이콘
 user_icon = ctk.CTkLabel(top_frame, text="◡̈", font=("Arial", 26), text_color="black")
