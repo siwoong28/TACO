@@ -2,6 +2,8 @@ import customtkinter as ctk
 import tkinter as tk
 from tkinter import ttk
 import time
+import subprocess
+import sys
 
 
 class CodingTypingGame:
@@ -33,6 +35,9 @@ class CodingTypingGame:
         self.errors = 0
         self.total_chars = 0
 
+        # 오타 추적을 위한 새로운 변수들
+        self.error_positions = set()  # 오타가 발생한 위치들을 추적
+
         # 완료된 단계별 입력 내용 저장
         self.completed_inputs = []  # 각 단계별로 실제 입력한 내용 저장
 
@@ -54,7 +59,7 @@ class CodingTypingGame:
         # 상단 헤더
         self.create_header(main_frame)
 
-        # 메인 콘텐츠 영역
+        # 메인 콘텐츠 영역 - 이 부분이 누락되었을 수 있습니다
         content_frame = ctk.CTkFrame(main_frame, fg_color="#FBE6A2")
         content_frame.pack(fill="both", expand=True, pady=(20, 0))
 
@@ -63,6 +68,27 @@ class CodingTypingGame:
 
         # 오른쪽 메인 콘텐츠
         self.create_main_content(content_frame)
+
+        # 상단 헤더
+        def create_header(self, parent):
+            header_frame = ctk.CTkFrame(parent, fg_color="#FBE6A2", height=60)
+            header_frame.pack(fill="x", pady=(0, 10))
+            header_frame.pack_propagate(False)
+
+            # 뒤로가기 버튼 - 더 명확하게 보이도록 수정
+            back_btn = ctk.CTkButton(
+                header_frame,
+                text="< 돌아가기",
+                fg_color="white",  # transparent 대신 white로 변경
+                text_color="black",
+                hover_color="#E6D68A",
+                width=100,
+                height=40,
+                border_width=1,  # 테두리 추가
+                border_color="black",  # 테두리 색상
+                command=self.go_back  # command도 함께 추가
+            )
+            back_btn.pack(side="left", padx=10, pady=10)
 
     def create_header(self, parent):
         header_frame = ctk.CTkFrame(parent, fg_color="#FBE6A2", height=60)
@@ -73,11 +99,12 @@ class CodingTypingGame:
         back_btn = ctk.CTkButton(
             header_frame,
             text="< 돌아가기",
-            fg_color="transparent",
+            fg_color="white",
             text_color="black",
             hover_color="#E6D68A",
             width=100,
-            height=40
+            height=40,
+            command=self.go_back
         )
         back_btn.pack(side="left", padx=10, pady=10)
 
@@ -86,22 +113,9 @@ class CodingTypingGame:
         sidebar_frame.pack(side="left", fill="y", padx=(0, 20))
         sidebar_frame.pack_propagate(False)
 
-        # JAVA 태그
-        java_label = ctk.CTkLabel(
-            sidebar_frame,
-            text="JAVA",
-            fg_color="#E6D68A",
-            text_color="black",
-            corner_radius=20,
-            width=80,
-            height=30,
-            font=("Arial", 14, "bold")
-        )
-        java_label.pack(pady=(20, 30))
-
         # 프로필 이미지
         profile_frame = ctk.CTkFrame(sidebar_frame, width=100, height=100, fg_color="#D3D3D3", corner_radius=50)
-        profile_frame.pack(pady=(0, 30))
+        profile_frame.pack(pady=(30, 30))
         profile_frame.pack_propagate(False)
 
         # 통계 라벨들 (업데이트 가능하도록 저장)
@@ -149,7 +163,7 @@ class CodingTypingGame:
         self.class_frame = ctk.CTkFrame(code_container, fg_color="white", corner_radius=15)
         self.class_frame.pack(fill="x", pady=(0, 10))
 
-        # 첫 번째 단계 텍스000000000000000000000트 표시 (현재 타이핑 중인 부분)
+        # 첫 번째 단계 텍스트 표시 (현재 타이핑 중인 부분)
         self.class_text_display = tk.Text(
             self.class_frame,
             height=3,
@@ -333,6 +347,7 @@ class CodingTypingGame:
             else:
                 # 틀린 경우 오류 처리
                 self.errors += 1
+                self.error_positions.add(self.current_position)  # 오타 위치 기록
                 self.typed_text += space
                 self.current_position += 1
 
@@ -354,11 +369,18 @@ class CodingTypingGame:
         self.highlight_key(char)
 
         if char == target_char:
+            # 이전에 이 위치에서 오타가 있었는지 확인
+            if self.current_position in self.error_positions:
+                self.error_positions.remove(self.current_position)
+
             self.typed_text += char
             self.current_position += 1
         else:
             # 틀린 경우 오류 처리
-            self.errors += 1
+            if self.current_position not in self.error_positions:
+                self.errors += 1
+                self.error_positions.add(self.current_position)  # 오타 위치 기록
+
             self.typed_text += char
             self.current_position += 1
 
@@ -375,6 +397,7 @@ class CodingTypingGame:
             self.current_stage += 1
             self.current_position = 0
             self.typed_text = ""
+            self.error_positions.clear()  # 새 단계에서는 오타 위치 초기화
             self.update_display()
         elif self.current_stage == len(self.typing_stages) - 1:
             # 마지막 단계에서 엔터를 누르면 완료
@@ -392,8 +415,19 @@ class CodingTypingGame:
 
     def handle_backspace(self):
         if self.current_position > 0:
+            # 삭제할 위치의 문자가 틀렸었는지 확인
+            delete_position = self.current_position - 1
+
+            # 이전 위치로 돌아가기
             self.current_position -= 1
             self.typed_text = self.typed_text[:-1]
+
+            # 해당 위치에서 오타가 있었다면 오타 카운트 감소
+            if delete_position in self.error_positions:
+                self.error_positions.remove(delete_position)
+                if self.errors > 0:
+                    self.errors -= 1
+
             self.update_display()
 
         # Backspace 키 하이라이트
@@ -473,7 +507,7 @@ class CodingTypingGame:
                     len(self.typing_stages[i]) for i in range(self.current_stage)) + self.current_position
                 self.typing_speed = int((total_typed_chars / elapsed) * 60)
 
-        # 정확도 계산 - 100에서 시작해서 틀릴 때마다 감소
+        # 정확도 계산 - 현재 오타 개수를 기준으로 계산
         if self.total_chars > 0:
             self.accuracy = max(0, 100 - (self.errors / self.total_chars * 100))
         else:
@@ -642,44 +676,149 @@ class CodingTypingGame:
         )
         quit_btn.pack(side="left", fill="x", expand=True, padx=(0, 10))
 
+        # 계속하기
         # 계속하기 버튼
         continue_btn = ctk.CTkButton(
             button_inner_frame,
             text="계속하기",
             width=120,
             height=45,
-            fg_color="black",
-            text_color="white",
-            hover_color="#333333",
+            fg_color="#FBE6A2",
+            text_color="black",
+            hover_color="#E6D68A",
             corner_radius=22,
             font=("Arial", 13, "bold"),
-            command=lambda: [completion_window.destroy(), self.restart_game()]
+            command=lambda: self.restart_game(completion_window)
         )
         continue_btn.pack(side="right", fill="x", expand=True, padx=(10, 0))
 
-    def restart_game(self):
-        """게임을 다시 시작하는 함수"""
+    def restart_game(self, completion_window):
+        """게임을 재시작하는 함수"""
+        # 완료 창 닫기
+        completion_window.destroy()
+
+        # 게임 상태 초기화
         self.current_stage = 0
         self.current_position = 0
         self.typed_text = ""
-        self.start_time = None
         self.errors = 0
         self.total_chars = 0
-        self.completed_inputs = []
-        self.typing_speed = 0
-        self.accuracy = 100.0
-        self.elapsed_time = "0:00"
+        self.error_positions.clear()
+        self.completed_inputs.clear()
         self.game_completed = False
         self.completion_shown = False
 
-        # UI 초기화
+        # 통계 초기화
+        self.typing_speed = 0
+        self.accuracy = 100.0
+        self.elapsed_time = "0:00"
+
+        # 타이머 재시작
+        self.start_time = time.time()
+
+        # 화면 업데이트
         self.update_display()
-        self.start_timer()
+
+        # 포커스 설정
+        self.root.focus_set()
+
+    def go_back(self):
+        """뒤로가기 버튼 기능"""
+        # 현재 게임 진행 상황 확인
+        if self.current_stage > 0 or self.current_position > 0:
+            # 게임이 진행 중인 경우 확인 대화상자 표시
+            if self.confirm_exit():
+                self.exit_to_rank_select()
+        else:
+            # 게임이 시작되지 않은 경우 바로 나가기
+            self.exit_to_rank_select()
+
+    def exit_to_rank_select(self):
+        """레벨 선택 화면으로 돌아가기"""
+        try:
+            import os
+            if os.path.exists("rank.py"):
+                subprocess.Popen([sys.executable, "rank.py"])
+                self.root.after(100, self.root.destroy)
+            else:
+                print("rank.py 파일을 찾을 수 없습니다.")
+                self.root.destroy()
+        except Exception as e:
+            print(f"rank.py 실행 중 오류 발생: {e}")
+            self.root.destroy()
+
+    def confirm_exit(self):
+        """게임 종료 확인 대화상자"""
+        confirm_window = ctk.CTkToplevel(self.root)
+        confirm_window.title("게임 종료")
+        confirm_window.geometry("300x150")
+        confirm_window.configure(fg_color="white")
+        confirm_window.resizable(False, False)
+
+        # 창을 화면 중앙에 위치
+        confirm_window.transient(self.root)
+        confirm_window.grab_set()
+
+        # 확인 메시지
+        message_label = ctk.CTkLabel(
+            confirm_window,
+            text="정말로 게임을 종료하시겠습니까?",
+            font=("Arial", 14),
+            text_color="black"
+        )
+        message_label.pack(pady=30)
+
+        # 버튼 프레임
+        button_frame = ctk.CTkFrame(confirm_window, fg_color="white")
+        button_frame.pack(fill="x", padx=20, pady=10)
+
+        # 결과 저장을 위한 변수
+        result = [False]  # 리스트로 감싸서 참조 가능하게 함
+
+        def on_yes():
+            result[0] = True
+            confirm_window.destroy()
+
+        def on_no():
+            result[0] = False
+            confirm_window.destroy()
+
+        # 아니오 버튼
+        no_btn = ctk.CTkButton(
+            button_frame,
+            text="아니오",
+            width=80,
+            height=35,
+            fg_color="#D3D3D3",
+            text_color="black",
+            hover_color="#C0C0C0",
+            command=on_no
+        )
+        no_btn.pack(side="left", padx=(0, 10))
+
+        # 예 버튼
+        yes_btn = ctk.CTkButton(
+            button_frame,
+            text="예",
+            width=80,
+            height=35,
+            fg_color="#FF6B6B",
+            text_color="white",
+            hover_color="#FF5252",
+            command=on_yes
+        )
+        yes_btn.pack(side="right")
+
+        # 창이 닫힐 때까지 대기
+        confirm_window.wait_window()
+
+        return result[0]
 
     def run(self):
+        """게임 실행"""
         self.root.mainloop()
 
-
+# 게임 실행
 if __name__ == "__main__":
     game = CodingTypingGame()
     game.run()
