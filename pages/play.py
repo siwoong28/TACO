@@ -19,10 +19,10 @@ class CodingTypingGame:
         # 타자 게임 변수들 - 단계별 시스템
         self.typing_stages = [
             "public class Main{",
-            "   public static void main(String[] args){",
-            "       int a = 1; int b = 2; int c = 3;",
-            "       System.out.println(a + b + c);",
-            "   }",
+            "    public static void main(String[] args){",
+            "        int a = 1; int b = 2; int c = 3;",
+            "        System.out.println(a + b + c);",
+            "    }",
             "}"
         ]
 
@@ -149,7 +149,7 @@ class CodingTypingGame:
         self.class_frame = ctk.CTkFrame(code_container, fg_color="white", corner_radius=15)
         self.class_frame.pack(fill="x", pady=(0, 10))
 
-        # 첫 번째 단계 텍스트 표시 (현재 타이핑 중인 부분)
+        # 첫 번째 단계 텍스000000000000000000000트 표시 (현재 타이핑 중인 부분)
         self.class_text_display = tk.Text(
             self.class_frame,
             height=3,
