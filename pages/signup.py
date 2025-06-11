@@ -3,6 +3,7 @@ import subprocess
 import sys
 import os
 import db
+db.create_tables()
 
 def back_login():
     subprocess.Popen([sys.executable, os.path.abspath("login.py")])

@@ -9,7 +9,7 @@ def get_connection():
 def create_tables():
     with get_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute('''
+        cursor.execute('''  
             CREATE TABLE IF NOT EXISTS users (
                 id TEXT PRIMARY KEY,                  -- 아이디
                 name TEXT NOT NULL,                   -- 이름
