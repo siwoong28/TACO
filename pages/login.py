@@ -7,6 +7,14 @@ def go_back_signup():
     subprocess.Popen([sys.executable, os.path.abspath("signup.py")])
     window.destroy()
 
+def go_to_rank():
+    """확인 버튼 클릭 시 rank.py로 이동"""
+    try:
+        subprocess.Popen([sys.executable, os.path.abspath("rank.py")])
+        window.destroy()
+    except Exception as e:
+        print(f"rank.py 실행 중 오류 발생: {e}")
+
 # 비밀번호 표시 토글용 변수
 pw_visible = False
 
@@ -111,7 +119,7 @@ confirm_button = ctk.CTkButton(
     hover_color = "#333333",
     text_color = "white",
     corner_radius = 20,
-    # command = go_back_login
+    command = go_to_rank
 )
 confirm_button.place(relx = 0.5, rely = 1.0, anchor = "s", y = -10)
 
