@@ -26,10 +26,10 @@ def switch_page(menu_name):
     # subprocess 실행 시 작업 디렉토리 설정
     subprocess.Popen(
         [sys.executable, script_path, menu_name],
-        cwd=script_dir  # ✅ 핵심: level.py의 디렉토리를 기준으로 작업 디렉토리 설정
+        cwd=script_dir
     )
 
-    window.destroy()
+    window.withdraw()
 
 def update_menu_styles():
     for btn, name in menu_buttons:

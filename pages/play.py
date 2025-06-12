@@ -15,8 +15,8 @@ class CodingTypingGame:
         # 메인 윈도우 생성
         self.root = ctk.CTk()
         self.root.title("코딩 타자 게임")
-        self.root.geometry("1400x900")
-        self.root.configure(fg_color="#FBE6A2")  # 지정된 배경색
+        self.root.geometry("1920x1080")
+        self.root.configure(fg_color="#FBE6A2")
 
         # 타자 게임 변수들 - 단계별 시스템
         self.typing_stages = [
@@ -59,7 +59,6 @@ class CodingTypingGame:
         # 상단 헤더
         self.create_header(main_frame)
 
-        # 메인 콘텐츠 영역 - 이 부분이 누락되었을 수 있습니다
         content_frame = ctk.CTkFrame(main_frame, fg_color="#FBE6A2")
         content_frame.pack(fill="both", expand=True, pady=(20, 0))
 
@@ -248,21 +247,21 @@ class CodingTypingGame:
 
             for key in row:
                 # 키 크기 조정
-                key_width = 50
+                key_width = 70
                 if key in ["Backspace"]:
-                    key_width = 100
+                    key_width = 200
                 elif key == "Enter":
-                    key_width = 80
+                    key_width = 160
                 elif key == "Space":
-                    key_width = 250
+                    key_width = 500
                 elif key in ["Tab", "Caps", "Shift"]:
-                    key_width = 70
+                    key_width = 140
 
                 key_btn = ctk.CTkButton(
                     row_frame,
                     text=key if key != "Space" else "Space",
                     width=key_width,
-                    height=45,
+                    height=70,
                     fg_color="#F0F0F0",
                     text_color="black",
                     hover_color="#E0E0E0",
@@ -817,6 +816,7 @@ class CodingTypingGame:
     def run(self):
         """게임 실행"""
         self.root.mainloop()
+
 
 # 게임 실행
 if __name__ == "__main__":
