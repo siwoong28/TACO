@@ -8,7 +8,7 @@ import sys
 window = ctk.CTk()
 window.title("랭킹 페이지")
 window.geometry("1920x1080")
-window.configure(fg_color="#FBE6A2")  # 배경 노랑
+window.configure(fg_color="#FBE6A2")
 
 # 현재 선택된 메뉴
 selected_menu = ctk.StringVar(value="JAVA")
@@ -17,8 +17,7 @@ def switch_page(menu_name):
     selected_menu.set(menu_name)
     update_menu_styles()
     print(f"🔁 '{menu_name}' 페이지로 전환")
-
-    # level.py 절대 경로로 찾기
+    
     script_path = os.path.join(os.path.dirname(__file__), "level.py")
     script_path = os.path.abspath(script_path)
     script_dir = os.path.dirname(script_path)

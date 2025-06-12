@@ -158,11 +158,11 @@ class CodingTypingGame:
         code_container = ctk.CTkFrame(parent, fg_color="#FBE6A2")
         code_container.pack(fill="x", pady=(0, 20), padx=20)
 
-        # Class 선언 박스 - 첫 번째 단계
+        # 현재 타이핑 중
         self.class_frame = ctk.CTkFrame(code_container, fg_color="white", corner_radius=15)
         self.class_frame.pack(fill="x", pady=(0, 10))
 
-        # 첫 번째 단계 텍스트 표시 (현재 타이핑 중인 부분)
+        # 현재 타이핑 중인 부분
         self.class_text_display = tk.Text(
             self.class_frame,
             height=3,
@@ -183,7 +183,7 @@ class CodingTypingGame:
         self.class_text_display.tag_configure("current", background="#FFFFCC")
         self.class_text_display.tag_configure("remaining", foreground="gray")
 
-        # 메인 코드 박스 - 나머지 단계들
+        # 나머지 단계들
         self.main_code_frame = ctk.CTkFrame(code_container, fg_color="white", corner_radius=15)
         self.main_code_frame.pack(fill="x")
 
@@ -222,7 +222,7 @@ class CodingTypingGame:
         self.main_progress.pack()
         self.main_progress.set(0.0)
 
-        # 키보드 레이아웃 컨테이너 (가운데 정렬)
+        # 키보드 레이아웃 컨테이너
         keyboard_container = ctk.CTkFrame(keyboard_frame, fg_color="white")
         keyboard_container.pack(fill="both", expand=True, padx=20, pady=(0, 20))
 
@@ -722,7 +722,7 @@ class CodingTypingGame:
         self.root.focus_set()
 
     def go_back(self):
-        """뒤로가기 버튼 기능"""
+        # 뒤로가기 버튼
         # 현재 게임 진행 상황 확인
         if self.current_stage > 0 or self.current_position > 0:
             # 게임이 진행 중인 경우 확인 대화상자 표시
@@ -747,7 +747,6 @@ class CodingTypingGame:
             self.root.destroy()
 
     def confirm_exit(self):
-        """게임 종료 확인 대화상자"""
         confirm_window = ctk.CTkToplevel(self.root)
         confirm_window.title("게임 종료")
         confirm_window.geometry("300x150")
@@ -772,7 +771,7 @@ class CodingTypingGame:
         button_frame.pack(fill="x", padx=20, pady=10)
 
         # 결과 저장을 위한 변수
-        result = [False]  # 리스트로 감싸서 참조 가능하게 함
+        result = [False]
 
         def on_yes():
             result[0] = True

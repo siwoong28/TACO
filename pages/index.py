@@ -12,7 +12,7 @@ def open_login_page():
         stderr = subprocess.PIPE,
         start_new_session = True
     )
-    root.destroy()
+    root.withdraw()
 
 def open_signup_page():
     python = sys.executable
@@ -23,7 +23,7 @@ def open_signup_page():
         stderr = subprocess.PIPE,
         start_new_session = True
     )
-    root.destroy()
+    root.withdraw()
 
 # 기본 설정
 ctk.set_appearance_mode("light")
