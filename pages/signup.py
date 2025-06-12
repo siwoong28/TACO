@@ -7,7 +7,7 @@ db.create_tables()
 
 def back_login():
     subprocess.Popen([sys.executable, os.path.abspath("login.py")])
-    window.destroy()
+    window.withdraw()
 
 def register_user():
     name = name_entry.get()
