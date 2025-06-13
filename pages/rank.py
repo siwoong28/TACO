@@ -13,12 +13,23 @@ window.configure(fg_color="#FBE6A2")
 # 현재 선택된 메뉴
 selected_menu = ctk.StringVar(value="JAVA")
 
+
 def switch_page(menu_name):
     selected_menu.set(menu_name)
     update_menu_styles()
-    print(f"🔁 '{menu_name}' 페이지로 전환")
-    
-    script_path = os.path.join(os.path.dirname(__file__), "level.py")
+    print(f"'{menu_name}' 페이지로 전환")
+
+    # 각 언어별로 다른 파일명 매핑
+    file_mapping = {
+        "JAVA": "java_level.py",
+        "PYTHON": "python_level.py",
+        "HTML": "html_level.py"
+    }
+
+    target_file = file_mapping.get(menu_name, "level.py")
+
+    # 파일 절대 경로로 찾기
+    script_path = os.path.join(os.path.dirname(__file__), target_file)
     script_path = os.path.abspath(script_path)
     script_dir = os.path.dirname(script_path)
 
@@ -30,12 +41,27 @@ def switch_page(menu_name):
 
     window.withdraw()
 
+
 def update_menu_styles():
     for btn, name in menu_buttons:
         if selected_menu.get() == name:
             btn.configure(text_color="#2962FF", font=("Arial", 16, "bold"))
         else:
             btn.configure(text_color="black", font=("Arial", 16))
+
+
+# 오른쪽 아이콘 클릭 시 mypage.py 실행
+def open_mypage():
+    script_path = os.path.join(os.path.dirname(__file__), "mypage.py")
+    script_path = os.path.abspath(script_path)
+    script_dir = os.path.dirname(script_path)
+
+    subprocess.Popen(
+        [sys.executable, script_path],
+        cwd=script_dir
+    )
+    window.withdraw()
+
 
 # 상단 바
 top_frame = ctk.CTkFrame(window, height=80, fg_color="white", corner_radius=0)
@@ -46,7 +72,7 @@ logo_frame = ctk.CTkFrame(top_frame, fg_color="transparent")
 logo_frame.pack(side="left", padx=30, pady=20)
 
 # logo.png 이미지 로딩
-logo_path = os.path.join(os.path.dirname(__file__), "..","assets", "logo.png")
+logo_path = os.path.join(os.path.dirname(__file__), "..", "assets", "logo.png")
 logo_path = os.path.abspath(logo_path)
 logo_image = ctk.CTkImage(Image.open(logo_path), size=(60, 60))
 
@@ -85,9 +111,10 @@ for menu in menus:
 
 update_menu_styles()
 
-# 오른쪽 아이콘
-user_icon = ctk.CTkLabel(top_frame, text="◡̈", font=("Arial", 26), text_color="black")
+# 오른쪽 아이콘 (마이페이지 전환)
+user_icon = ctk.CTkLabel(top_frame, text="◡̈", font=("Arial", 26), text_color="black", cursor="hand2")
 user_icon.pack(side="right", padx=30)
+user_icon.bind("<Button-1>", lambda e: open_mypage())
 
 # 랭킹 제목 + 드롭다운
 title_frame = ctk.CTkFrame(window, fg_color="#FBE6A2")
@@ -108,5 +135,4 @@ dropdown.pack(side="left", padx=10)
 title_label = ctk.CTkLabel(title_frame, text="실시간 랭킹", font=("Arial", 20, "bold"), text_color="black")
 title_label.pack(side="left", padx=10)
 
-# 실행
 window.mainloop()
