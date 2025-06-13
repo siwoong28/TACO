@@ -4,13 +4,12 @@ import subprocess
 import sys
 import os
 
-# 전역 창 선언
-window = ctk.CTk()
-window.title("난이도 선택")
-window.geometry("1920x1080")
-window.configure(fg_color="#FBE6A2")  # 배경색
 
-# 창 중앙 정렬 함수
+window = ctk.CTk()
+window.title("PYTHON 난이도 선택")
+window.geometry("1920x1080")
+window.configure(fg_color="#FBE6A2")
+
 def center_window():
     window.update_idletasks()
     width = window.winfo_width()
@@ -21,34 +20,37 @@ def center_window():
 
 center_window()
 
-# 난이도별 코드
+
 difficulty_codes = {
     "초급": [
         "print('Hello World')",
         "name = 'Python'",
-        "print(name)"
+        "print(f'Hello, {name}!')"
     ],
     "중급": [
-        "public class Main{",
-        "    public static void main(String[] args){",
-        "        int a = 1; int b = 2; int c = 3;",
-        "        System.out.println(a + b + c);",
-        "    }",
-        "}"
+        "def calculate_sum(a, b, c):",
+        "    return a + b + c",
+        "",
+        "numbers = [10, 20, 30]",
+        "result = calculate_sum(*numbers)",
+        "print(f'Sum: {result}')"
     ],
     "고급": [
-        "import java.util.*;",
-        "public class Calculator {",
-        "    private double result;",
-        "    public Calculator() { this.result = 0.0; }",
-        "    public double add(double a, double b) {",
-        "        return this.result = a + b;",
-        "    }",
-        "    public static void main(String[] args) {",
-        "        Calculator calc = new Calculator();",
-        "        System.out.println(calc.add(10.5, 20.3));",
-        "    }",
-        "}"
+        "class Calculator:",
+        "    def __init__(self):",
+        "        self.result = 0.0",
+        "    ",
+        "    def add(self, a, b):",
+        "        self.result = a + b",
+        "        return self.result",
+        "    ",
+        "    def multiply(self, a, b):",
+        "        self.result = a * b",
+        "        return self.result",
+        "",
+        "calc = Calculator()",
+        "print(calc.add(10.5, 20.3))",
+        "print(calc.multiply(5.5, 4.2))"
     ]
 }
 
@@ -119,6 +121,7 @@ def run_play_game(difficulty, code_lines):
         env = os.environ.copy()
         env['GAME_DIFFICULTY'] = difficulty
         env['GAME_CODE'] = '|'.join(code_lines)
+        env['GAME_LANGUAGE'] = 'PYTHON'
 
         subprocess.Popen([sys.executable, play_file_path], env=env)
 
@@ -126,7 +129,7 @@ def run_play_game(difficulty, code_lines):
         show_error_message(str(e))
 
 def on_difficulty_selected(level):
-    print(f"선택된 난이도: {level}")
+    print(f"선택된 PYTHON 난이도: {level}")
     selected_code = difficulty_codes.get(level, [])
     run_play_game(level, selected_code)
 
@@ -140,13 +143,13 @@ def add_hover_effect(button):
     button.bind("<Enter>", on_enter)
     button.bind("<Leave>", on_leave)
 
-# UI 구성
+
 main_frame = ctk.CTkFrame(window, fg_color="#FBE6A2")
 main_frame.pack(fill="both", expand=True, padx=50, pady=50)
 
 title_label = ctk.CTkLabel(
     main_frame,
-    text="난이도 선택",
+    text="PYTHON 난이도 선택",
     font=("Arial", 48, "bold"),
     text_color="black",
     fg_color="transparent"
