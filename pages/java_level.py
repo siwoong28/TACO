@@ -3,6 +3,12 @@ import tkinter as tk
 import subprocess
 import sys
 import os
+import sqlite3
+import random
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+DB_PATH = os.path.join(PROJECT_ROOT, "java_game.db")
 
 # 전역 창 선언
 window = ctk.CTk()
@@ -20,42 +26,17 @@ def center_window():
 
 center_window()
 
-difficulty_codes = {
-    "초급": [
-        "public class HelloWorld {",
-        "    public static void main(String[] args) {",
-        "        System.out.println(\"Hello World\");",
-        "    }",
-        "}"
-    ],
-    "중급": [
-        "public class Calculator {",
-        "    public static void main(String[] args) {",
-        "        int a = 10; int b = 20; int c = 30;",
-        "        int sum = a + b + c;",
-        "        System.out.println(\"Sum: \" + sum);",
-        "    }",
-        "}"
-    ],
-    "고급": [
-        "import java.util.*;",
-        "public class AdvancedCalculator {",
-        "    private double result;",
-        "    public AdvancedCalculator() { this.result = 0.0; }",
-        "    public double add(double a, double b) {",
-        "        return this.result = a + b;",
-        "    }",
-        "    public double multiply(double a, double b) {",
-        "        return this.result = a * b;",
-        "    }",
-        "    public static void main(String[] args) {",
-        "        AdvancedCalculator calc = new AdvancedCalculator();",
-        "        System.out.println(calc.add(10.5, 20.3));",
-        "        System.out.println(calc.multiply(5.5, 4.2));",
-        "    }",
-        "}"
-    ]
-}
+def fetch_random_code(level):
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT code FROM java WHERE level = ?", (level,))
+        rows = cursor.fetchall()
+
+        if not rows:
+            return None
+
+        code_str = random.choice(rows)[0]  # 하나 랜덤 선택
+        return code_str.splitlines()
 
 def show_error_message(error_msg):
     error_window = ctk.CTkToplevel(window)
@@ -132,8 +113,11 @@ def run_play_game(difficulty, code_lines):
 
 def on_difficulty_selected(level):
     print(f"선택된 JAVA 난이도: {level}")
-    selected_code = difficulty_codes.get(level, [])
-    run_play_game(level, selected_code)
+    code_lines = fetch_random_code(level)
+    if code_lines is None:
+        show_error_message(f"'{level}' 난이도의 코드가 DB에 없습니다!")
+        return
+    run_play_game(level, code_lines)
 
 def add_hover_effect(button):
     def on_enter(event):

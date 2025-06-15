@@ -4,6 +4,7 @@ from tkinter import ttk
 import time
 import subprocess
 import sys
+import os
 
 
 class CodingTypingGame:
@@ -18,15 +19,9 @@ class CodingTypingGame:
         self.root.geometry("1920x1080")
         self.root.configure(fg_color="#FBE6A2")
 
-        # 타자 게임 변수들 - 단계별 시스템
-        self.typing_stages = [
-            "public class Main{",
-            "    public static void main(String[] args){",
-            "        int a = 1; int b = 2; int c = 3;",
-            "        System.out.println(a + b + c);",
-            "    }",
-            "}"
-        ]
+        env_code = os.environ.get("GAME_CODE")
+        if env_code:
+            self.typing_stages = env_code.split('|')
 
         self.current_stage = 0
         self.current_position = 0
@@ -320,7 +315,7 @@ class CodingTypingGame:
 
     def handle_tab(self):
         # Tab 키를 공백 4개로 처리
-        tab_spaces = "    "  # 4개의 공백
+        tab_spaces = "\t"  # 4개의 공백
 
         if self.current_stage >= len(self.typing_stages):
             return

@@ -3,6 +3,12 @@ import tkinter as tk
 import subprocess
 import sys
 import os
+import sqlite3
+import random
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+DB_PATH = os.path.join(PROJECT_ROOT, "html.db")
 
 # 전역 창 선언
 window = ctk.CTk()
@@ -21,76 +27,17 @@ def center_window():
 
 center_window()
 
+def fetch_random_code(level):
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT code FROM html WHERE level = ?", (level,))
+        rows = cursor.fetchall()
 
-difficulty_codes = {
-    "초급": [
-        "<!DOCTYPE html>",
-        "<html>",
-        "<head>",
-        "    <title>Hello World</title>",
-        "</head>",
-        "<body>",
-        "    <h1>Hello World</h1>",
-        "    <p>Welcome to HTML!</p>",
-        "</body>",
-        "</html>"
-    ],
-    "중급": [
-        "<!DOCTYPE html>",
-        "<html>",
-        "<head>",
-        "    <title>My Website</title>",
-        "    <style>",
-        "        body { font-family: Arial, sans-serif; }",
-        "        .container { max-width: 800px; margin: 0 auto; }",
-        "        .header { background-color: #f0f0f0; padding: 20px; }",
-        "    </style>",
-        "</head>",
-        "<body>",
-        "    <div class=\"container\">",
-        "        <div class=\"header\">",
-        "            <h1>My Website</h1>",
-        "            <nav>",
-        "                <a href=\"#home\">Home</a>",
-        "                <a href=\"#about\">About</a>",
-        "            </nav>",
-        "        </div>",
-        "    </div>",
-        "</body>",
-        "</html>"
-    ],
-    "고급": [
-        "<!DOCTYPE html>",
-        "<html>",
-        "<head>",
-        "    <title>Interactive Website</title>",
-        "    <style>",
-        "        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }",
-        "        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }",
-        "        .card { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 20px; margin: 20px 0; }",
-        "        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }",
-        "        button:hover { background: #0056b3; }",
-        "    </style>",
-        "</head>",
-        "<body>",
-        "    <div class=\"container\">",
-        "        <div class=\"card\">",
-        "            <h2>Interactive Counter</h2>",
-        "            <p id=\"counter\">Count: 0</p>",
-        "            <button onclick=\"increment()\">Increment</button>",
-        "        </div>",
-        "    </div>",
-        "    <script>",
-        "        let count = 0;",
-        "        function increment() {",
-        "            count++;",
-        "            document.getElementById('counter').textContent = 'Count: ' + count;",
-        "        }",
-        "    </script>",
-        "</body>",
-        "</html>"
-    ]
-}
+        if not rows:
+            return None
+
+        code_str = random.choice(rows)[0]  # 하나 랜덤 선택
+        return code_str.splitlines()
 
 def show_error_message(error_msg):
     error_window = ctk.CTkToplevel(window)
@@ -168,8 +115,11 @@ def run_play_game(difficulty, code_lines):
 
 def on_difficulty_selected(level):
     print(f"선택된 HTML 난이도: {level}")
-    selected_code = difficulty_codes.get(level, [])
-    run_play_game(level, selected_code)
+    code_lines = fetch_random_code(level)
+    if code_lines is None:
+        show_error_message(f"'{level}' 난이도의 코드가 DB에 없습니다!")
+        return
+    run_play_game(level, code_lines)
 
 def add_hover_effect(button):
     def on_enter(event):

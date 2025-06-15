@@ -3,6 +3,13 @@ import tkinter as tk
 import subprocess
 import sys
 import os
+import sqlite3
+import random
+
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+DB_PATH = os.path.join(PROJECT_ROOT, "py_game.db")
 
 
 window = ctk.CTk()
@@ -21,38 +28,17 @@ def center_window():
 center_window()
 
 
-difficulty_codes = {
-    "초급": [
-        "print('Hello World')",
-        "name = 'Python'",
-        "print(f'Hello, {name}!')"
-    ],
-    "중급": [
-        "def calculate_sum(a, b, c):",
-        "    return a + b + c",
-        "",
-        "numbers = [10, 20, 30]",
-        "result = calculate_sum(*numbers)",
-        "print(f'Sum: {result}')"
-    ],
-    "고급": [
-        "class Calculator:",
-        "    def __init__(self):",
-        "        self.result = 0.0",
-        "    ",
-        "    def add(self, a, b):",
-        "        self.result = a + b",
-        "        return self.result",
-        "    ",
-        "    def multiply(self, a, b):",
-        "        self.result = a * b",
-        "        return self.result",
-        "",
-        "calc = Calculator()",
-        "print(calc.add(10.5, 20.3))",
-        "print(calc.multiply(5.5, 4.2))"
-    ]
-}
+def fetch_random_code(level):
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT code FROM python WHERE level = ?", (level,))
+        rows = cursor.fetchall()
+
+        if not rows:
+            return None
+
+        code_str = random.choice(rows)[0]  # 하나 랜덤 선택
+        return code_str.splitlines()
 
 def show_error_message(error_msg):
     error_window = ctk.CTkToplevel(window)
@@ -128,10 +114,14 @@ def run_play_game(difficulty, code_lines):
     except Exception as e:
         show_error_message(str(e))
 
+
 def on_difficulty_selected(level):
     print(f"선택된 PYTHON 난이도: {level}")
-    selected_code = difficulty_codes.get(level, [])
-    run_play_game(level, selected_code)
+    code_lines = fetch_random_code(level)
+    if code_lines is None:
+        show_error_message(f"'{level}' 난이도의 코드가 DB에 없습니다!")
+        return
+    run_play_game(level, code_lines)
 
 def add_hover_effect(button):
     def on_enter(event):

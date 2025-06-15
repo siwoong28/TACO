@@ -14,7 +14,7 @@ def get_connection():
 
 def go_back_signup():
     subprocess.Popen([sys.executable, os.path.abspath("signup.py")])
-    window.destroy()
+    window.withdraw()
 
 
 def check_login():
@@ -49,7 +49,7 @@ def check_login():
 def go_to_rank():
     try:
         subprocess.Popen([sys.executable, os.path.abspath("rank.py")])
-        window.destroy()
+        window.withdraw()
     except Exception as e:
         print(f"rank.py 실행 중 오류 발생: {e}")
 
